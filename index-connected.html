@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3a5f">
+    <title>StudyTrack - Mon Espace de Révision</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="transparent-logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #1e3a5f;
+            --secondary: #4a90e2;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --border: #e1e8ed;
+        }
+        
+        [data-theme="dark"] {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #e0e0e0;
+            --border: #333;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+        
+        * { scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
+        
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        .login-box {
+            background: var(--card);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        .logo { width: 120px; margin: 0 auto 30px; }
+        .logo img { width: 100%; }
+        
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        .subtitle { color: #7f8c8d; margin-bottom: 40px; }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        [data-theme="dark"] input {
+            background: #2a2a2a;
+            color: var(--text);
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover { transform: translateY(-2px); }
+        
+        .error {
+            background: #fee;
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error.show { display: block; }
+        
+        .app { display: none; }
+        .app.active { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--card);
+            padding: 25px;
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            width: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .sidebar-logo img { width: 100%; }
+        
+        .user-info h2 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        [data-theme="dark"] .user-info h2 { color: var(--secondary); }
+        
+        .user-info p { color: #7f8c8d; font-size: 14px; }
+        
+        .menu {
+            list-style: none;
+            margin-top: 30px;
+        }
+        
+        .menu li { margin-bottom: 8px; }
+        
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .menu a:hover { background: var(--bg); }
+        .menu a.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .menu span:first-child { margin-right: 12px; font-size: 20px; }
+        
+        .theme-toggle {
+            margin-top: 30px;
+            padding: 14px;
+            background: var(--bg);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .main { margin-left: 280px; padding: 30px; width: calc(100% - 280px); }
+        
+        .grid { display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        [data-theme="dark"] .card-title { color: var(--secondary); }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        .note-card {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .note-subject {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        [data-theme="dark"] .note-subject { color: var(--secondary); }
+        
+        .note-grade {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .note-grade.good { color: var(--success); }
+        .note-grade.average { color: var(--warning); }
+        .note-grade.bad { color: var(--danger); }
+        
+        .objective-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .objective-card:hover { transform: translateY(-3px); }
+        
+        .objective-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .objective-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        [data-theme="dark"] .objective-title { color: var(--secondary); }
+        
+        .objective-date {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .objective-date.urgent { background: #fee; color: var(--danger); }
+        .objective-date.soon { background: #fef8e7; color: var(--warning); }
+        .objective-date.ok { background: #e8f5e9; color: var(--success); }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--secondary));
+            transition: width 0.5s;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-sm {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--primary);
+        }
+        
+        [data-theme="dark"] .btn-secondary { color: var(--secondary); }
+        
+        .chat-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(30,58,95,0.4);
+            z-index: 1000;
+        }
+        
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 550px;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+        }
+        
+        .chat-window.active { display: flex; }
+        
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .chat-message.user {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            margin-left: auto;
+        }
+        
+        .chat-message.assistant {
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .chat-send {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 4px solid var(--bg);
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main { margin-left: 0; width: 100%; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- PAGE DE CONNEXION -->
+    <div class="login-page" id="loginPage">
+        <div class="login-box">
+            <div class="logo">
+                <img src="transparent-logo.png" alt="StudyTrack">
+            </div>
+            <h1>StudyTrack</h1>
+            <p class="subtitle">Votre plateforme de révision intelligente</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Identifiant EcoleDirecte</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="input-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn">Se connecter</button>
+            </form>
+            
+            <div class="error" id="error"></div>
+        </div>
+    </div>
+
+    <!-- APPLICATION -->
+    <div class="app" id="app">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="transparent-logo.png" alt="StudyTrack">
+            </div>
+            <div class="user-info">
+                <h2 id="userName">Chargement...</h2>
+                <p id="userClass">...</p>
+            </div>
+            
+            <ul class="menu">
+                <li><a href="#" data-section="dashboard" class="active"><span>🏠</span> Tableau de bord</a></li>
+                <li><a href="#" data-section="notes"><span>📊</span> Mes Notes</a></li>
+                <li><a href="#" data-section="objectives"><span>🎯</span> Objectifs</a></li>
+                <li><a href="#" data-section="homework"><span>📝</span> Devoirs</a></li>
+                <li><a href="#" data-section="schedule"><span>📅</span> Emploi du temps</a></li>
+            </ul>
+            
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span>Mode sombre</span>
+                <span id="themeIcon">☀️</span>
+            </div>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <main class="main">
+            <!-- DASHBOARD -->
+            <div class="section active" id="dashboard">
+                <h1 style="margin-bottom: 30px;">Tableau de bord</h1>
+                <div class="grid">
+                    <div>
+                        <div class="card">
+                            <h2 class="card-title">⚠️ Prochains contrôles</h2>
+                            <div id="upcomingControls">
+                                <div class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="card">
+                            <h2 class="card-title">💡 Suggestions</h2>
+                            <div id="suggestions">
+                                <p>Analyse de vos devoirs en cours...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="section" id="notes">
+                <h1 style="margin-bottom: 30px;">📊 Mes Notes</h1>
+                <div id="notesGrid">
+                    <div class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+                </div>
+            </div>
+
+            <!-- OBJECTIFS -->
+            <div class="section" id="objectives">
+                <h1 style="margin-bottom: 30px;">🎯 Objectifs de révision</h1>
+                <div id="objectivesList">
+                    <div class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+                </div>
+            </div>
+
+            <!-- DEVOIRS -->
+            <div class="section" id="homework">
+                <h1 style="margin-bottom: 30px;">📝 Cahier de textes</h1>
+                <div id="homeworkList">
+                    <div class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+                </div>
+            </div>
+
+            <!-- EMPLOI DU TEMPS -->
+            <div class="section" id="schedule">
+                <h1 style="margin-bottom: 30px;">📅 Emploi du temps</h1>
+                <div id="scheduleGrid">
+                    <div class="loading"><div class="spinner"></div><p>Chargement...</p></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- CHAT -->
+        <div class="chat-fab" onclick="toggleChat()">💬</div>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <h3>My Study</h3>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message assistant">
+                    Bonjour ! Je suis My Study, votre assistant. Comment puis-je vous aider ?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Votre question...">
+                <button class="chat-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let sessionId = null;
+        let userData = null;
+        let isDark = localStorage.getItem('darkMode') === 'true';
+
+        if (isDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').textContent = '🌙';
+        }
+
+        // CONNEXION
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const error = document.getElementById('error');
+
+            try {
+                const res = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                sessionId = data.sessionId;
+                userData = data.user;
+
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('app').classList.add('active');
+                document.getElementById('userName').textContent = `${userData.prenom} ${userData.nom}`;
+                document.getElementById('userClass').textContent = userData.classe;
+
+                loadAllData();
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.add('show');
+            }
+        });
+
+        // CHARGEMENT DES DONNÉES
+        async function loadAllData() {
+            await Promise.all([
+                loadNotes(),
+                loadHomework(),
+                loadSchedule()
+            ]);
+        }
+
+        async function loadNotes() {
+            try {
+                const res = await fetch(`${API_URL}/api/notes/${sessionId}`);
+                const data = await res.json();
+                
+                const grid = document.getElementById('notesGrid');
+                if (!data.notes || data.notes.length === 0) {
+                    grid.innerHTML = '<p>Aucune note disponible</p>';
+                    return;
+                }
+
+                grid.innerHTML = data.notes.map(note => {
+                    const val = parseFloat(note.valeur);
+                    const max = parseFloat(note.noteSur);
+                    const pct = (val / max) * 100;
+                    const grade = pct >= 70 ? 'good' : pct >= 50 ? 'average' : 'bad';
+
+                    return `
+                        <div class="note-card">
+                            <div class="note-subject">${note.libelleMatiere || note.matiere}</div>
+                            <div class="note-grade ${grade}">${note.valeur}/${note.noteSur}</div>
+                            <p style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">
+                                ${note.devoir || 'Devoir'}<br>
+                                ${new Date(note.date).toLocaleDateString('fr-FR')}
+                            </p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Erreur notes:', err);
+            }
+        }
+
+        async function loadHomework() {
+            try {
+                const res = await fetch(`${API_URL}/api/devoirs/${sessionId}`);
+                const data = await res.json();
+
+                // Contrôles
+                const controls = document.getElementById('upcomingControls');
+                if (data.controles && data.controles.length > 0) {
+                    controls.innerHTML = data.controles.slice(0, 3).map(c => {
+                        const days = Math.ceil((new Date(c.pour_le) - new Date()) / (1000 * 60 * 60 * 24));
+                        const urgency = days <= 3 ? 'urgent' : days <= 7 ? 'soon' : 'ok';
+
+                        return `
+                            <div class="objective-card" onclick="openObjective('${c.id}', '${c.matiere}')">
+                                <div class="objective-header">
+                                    <div class="objective-title">${c.matiere}</div>
+                                    <div class="objective-date ${urgency}">Dans ${days}j</div>
+                                </div>
+                                <p>${c.description.substring(0, 100)}...</p>
+                                <div class="actions">
+                                    <button class="btn-sm btn-primary" onclick="event.stopPropagation(); generateExercises('${c.matiere}')">
+                                        📝 Exercices
+                                    </button>
+                                    <button class="btn-sm btn-secondary" onclick="event.stopPropagation(); searchVideos('${c.matiere}')">
+                                        🎥 Vidéos
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    controls.innerHTML = '<p>Aucun contrôle programmé</p>';
+                }
+
+                // Objectifs
+                document.getElementById('objectivesList').innerHTML = controls.innerHTML;
+
+                // Devoirs
+                const homework = document.getElementById('homeworkList');
+                if (data.devoirs && data.devoirs.length > 0) {
+                    homework.innerHTML = data.devoirs.map(d => {
+                        const days = Math.ceil((new Date(d.pour_le) - new Date()) / (1000 * 60 * 60 * 24));
+                        const urgency = days <= 2 ? 'urgent' : days <= 5 ? 'soon' : 'ok';
+
+                        return `
+                            <div class="objective-card">
+                                <div class="objective-header">
+                                    <div class="objective-title">${d.matiere}</div>
+                                    <div class="objective-date ${urgency}">
+                                        ${new Date(d.pour_le).toLocaleDateString('fr-FR')}
+                                    </div>
+                                </div>
+                                <p>${d.description}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    homework.innerHTML = '<p>Aucun devoir</p>';
+                }
+            } catch (err) {
+                console.error('Erreur devoirs:', err);
+            }
+        }
+
+        async function loadSchedule() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '<p>Emploi du temps à venir...</p>';
+        }
+
+        // NAVIGATION
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+                
+                document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // THÈME
+        function toggleTheme() {
+            isDark = !isDark;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // CHAT
+        function toggleChat() {
+            document.getElementById('chatWindow').classList.toggle('active');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messages = document.getElementById('chatMessages');
+            messages.innerHTML += `<div class="chat-message user">${message}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, context: userData?.classe })
+                });
+
+                const data = await res.json();
+                messages.innerHTML += `<div class="chat-message assistant">${data.response}</div>`;
+                messages.scrollTop = messages.scrollHeight;
+            } catch (err) {
+                messages.innerHTML += `<div class="chat-message assistant">Erreur: ${err.message}</div>`;
+            }
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // GÉNÉRATION EXERCICES
+        async function generateExercises(matiere) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.add('active');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Génération des exercices...</p></div>';
+
+            try {
+                const res = await fetch(`${API_URL}/api/generate-exercises`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ matiere, chapitre: 'Révisions', niveau: 'Terminale', nombre: 5 })
+                });
+
+                const data = await res.json();
+                content.innerHTML = `
+                    <h2>Exercices - ${matiere}</h2>
+                    <button onclick="closeModal()" style="float: right; background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    ${data.exercices.map((ex, i) => `
+                        <div class="objective-card">
+                            <h3>Exercice ${i + 1}</h3>
+                            <p><strong>Énoncé:</strong><br>${ex.enonce}</p>
+                            <details style="margin-top: 10px;">
+                                <summary style="cursor: pointer; color: var(--primary); font-weight: 500;">
+                                    Voir la correction
+                                </summary>
+                                <div style="margin-top: 10px; padding: 15px; background: var(--bg); border-radius: 8px;">
+                                    ${ex.correction}
+                                </div>
+                            </details>
+                        </div>
+                    `).join('')}
+                `;
+            } catch (err) {
+                content.innerHTML = `<p>Erreur: ${err.message}</p>`;
+            }
+        }
+
+        async function searchVideos(query) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            modal.classList.add('active');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Recherche de vidéos...</p></div>';
+
+            try {
+                const res = await fetch(`${API_URL}/api/youtube/search?query=${encodeURIComponent(query)}&maxResults=6`);
+                const data = await res.json();
+
+                content.innerHTML = `
+                    <h2>Vidéos - ${query}</h2>
+                    <button onclick="closeModal()" style="float: right; background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+                        ${data.videos.map(v => `
+                            <a href="${v.url}" target="_blank" style="text-decoration: none;">
+                                <div class="objective-card">
+                                    <img src="${v.thumbnail}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+                                    <h4 style="font-size: 14px; margin-bottom: 5px;">${v.title}</h4>
+                                    <p style="font-size: 12px; color: #7f8c8d;">${v.channel}</p>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (err) {
+                content.innerHTML = `<p>Erreur: ${err.message}</p>`;
+            }
+        }
+
+        function openObjective(id, matiere) {
+            Promise.all([
+                generateExercises(matiere),
+                searchVideos(matiere)
+            ]);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>

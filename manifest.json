@@ -1,0 +1,18 @@
+{
+  "name": "StudyTrack - Plateforme de Révision",
+  "short_name": "StudyTrack",
+  "description": "Votre assistant de révision intelligent avec IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e3a5f",
+  "theme_color": "#1e3a5f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "transparent-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
